@@ -32,19 +32,22 @@
         }
     };
 
-    var player;
-    var cursors;
-	var level = 1;
-    var score = 0;
-    var scoreText;
-    var levelText;
-	var fruits;
-	var fruitSprites;
+	var levels;
+	var level = 0;
+	var round = 0;
+    	var score = 0;
+	var strings;
 	var regex;
-	var regexText;
 	var mistake;
-	var mistakeText;
 
+	var regexText;
+	var mistakeText;
+    	var levelText;
+    	var roundText;
+    	var scoreText;
+	var fruits;
+    	var player;
+    	var cursors;
 	var weedKey;
 
 	var freeFruits = [];
@@ -53,7 +56,7 @@
 
     function preload ()
     {
-        this.load.json('fruits', 'assets/fruits.json');
+        this.load.json('levels', 'assets/sglevels.json');
         this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
     }
 
@@ -92,17 +95,24 @@
 
         cursors = this.input.keyboard.createCursorKeys();
 
-	i = 0;
 
-	n = this.cache.json.get('fruits').length;
+	debugger;
+
+	levels = this.cache.json.get('levels');
+
+	regex = levels[level].rounds[round].regex;
+
+	strings = levels[level].rounds[round].strings;
+
+	n = strings.length;
 
 	step = (800-16*2) / n;
 
 	scene = this;
 
-        fruits = this.cache.json.get('fruits');
+	i = 0;
 
-	fruitSprites = fruits.map(function (child) {
+	fruits = strings.map(function (child) {
 
 		fruit = scene.add.text(16+i*step, 92 + Phaser.Math.Between(0,600-92-32), child[0]+child[1], { fontSize:'16px', fill: '#FFF' });
 
@@ -114,19 +124,20 @@
 
         });
 
-	fruitSprites.forEach(function(each) {
+	fruits.forEach(function(each) {
 
 		scene.physics.world.enable(each);
 		each.body.immovable = true;
 	});
 
-	this.physics.add.overlap(player, fruitSprites, eatFruit, null, this);
+	this.physics.add.overlap(player, fruits, eatFruit, null, this);
 
 
-        levelText = this.add.text(16, 16, 'level: 1', { fontSize: '16px', fill: '#FFF' });
-        scoreText = this.add.text(164, 16, 'score: 0', { fontSize: '16px', fill: '#FFF' });
+        levelText = this.add.text(16, 16, 'level: ' + (level+1), { fontSize: '16px', fill: '#FFF' });
 
-	regex = "a*";
+        roundText = this.add.text(128, 16, 'round: ' + (round+1), { fontSize: '16px', fill: '#FFF' });
+
+        scoreText = this.add.text(232, 16, 'score: 0', { fontSize: '16px', fill: '#FFF' });
 
 	regexText = this.add.text(128,64, 'regex: ' + regex, { fontSize:'32px', fill:'#FFF' });
 
@@ -145,9 +156,9 @@
 
 		fruit.y = 92 + Phaser.Math.Between(0,600-92-32);
 
-		i = Phaser.Math.Between(0, fruits.length-1);
+		i = Phaser.Math.Between(0, strings.length-1);
 
-		fruit.setText(fruits[i][0] + fruits[i][1]);
+		fruit.setText(strings[i][0] + strings[i][1]);
 		fruit.index = i;
 		fruit.body.enable=true;
 		fruit.body.gameObject.visible = true;
@@ -156,7 +167,7 @@
 
 	function toxic(fruit) {
 	
-		return fruits[fruit.index][1].length > 0;
+		return strings[fruit.index][1].length > 0;
 
 	}
 
@@ -220,7 +231,7 @@
 
 			if (toxic(fruit)) {
 				score = score - 1;
-				mistakeText.setText('mismatch: ' + fruits[fruit.index][0] + '>' + fruits[fruit.index][1] + '<');
+				mistakeText.setText('mismatch: ' + strings[fruit.index][0] + '>' + strings[fruit.index][1] + '<');
 			} else {
 				score = score + 1;
 				mistakeText.setText('');
@@ -235,7 +246,7 @@
 			}
 			else {
 				score = score + 1;
-				mistakeText.setText('match: ' + fruits[fruit.index][0]);
+				mistakeText.setText('match: ' + strings[fruit.index][0]);
 			}
 		}
 

@@ -1,0 +1,14 @@
+[
+	{ 
+		"level" : 1,
+  		"rounds" : [
+			{ "regex": "aa*" , strings: [ [ "aa" , "b" ] , [ "aa", ""] , ["", "baa"] ] },
+			{ "regex": "a*ba*", strings: [ [ "aba", "" ] , [ "", "bba" ] , [ "b", ""] ] } ]
+	}, 
+	{ 
+		"level" : 2,
+  		"rounds" : [
+			{ "regex": "(a|b)+a*a" , strings: [ [ "aa" , "" ] , [ "baa", "b"] , ["", "b"] ] }, 
+			{ "regex": "(bb|aa)*", strings: [ [ "aa", "" ] , [ "bb", "ba" ] , [ "b", "a"] ] } ]
+	}
+]
