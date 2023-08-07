@@ -95,9 +95,6 @@
 
         cursors = this.input.keyboard.createCursorKeys();
 
-
-	debugger;
-
 	levels = this.cache.json.get('levels');
 
 	regex = levels[level].rounds[round].regex;
@@ -154,14 +151,25 @@
 
 		fruit = freeFruits.pop();
 
+		x = fruit.x;
+
 		fruit.y = 92 + Phaser.Math.Between(0,600-92-32);
+		fruit.x = x;
 
 		i = Phaser.Math.Between(0, strings.length-1);
 
+		scene.physics.world.remove(fruit.body);
+
+		fruit.body = null;
+
 		fruit.setText(strings[i][0] + strings[i][1]);
+
+		scene.physics.world.enable(fruit);
+
 		fruit.index = i;
 		fruit.body.enable=true;
 		fruit.body.gameObject.visible = true;
+
 
 	}
 
