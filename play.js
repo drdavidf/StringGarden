@@ -14,7 +14,7 @@ class Play extends Phaser.Scene {
 
     preload() {
 		this.load.json('levels', 'assets/sglevels.json');
-		this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+		this.load.spritesheet('marvin', 'assets/marvin.png', { frameWidth: 64, frameHeight: 64 });
     }
 
     create(data) {
@@ -24,27 +24,42 @@ class Play extends Phaser.Scene {
 		this.eating = false;
 		this.weeding = false;
 	
-		this.player = this.physics.add.sprite(100, 450, 'dude');
+		this.player = this.physics.add.sprite(100, 450, 'marvin');
 	
 		this.player.setBounce(0.2);
 		this.player.setCollideWorldBounds(true);
 	
 		this.anims.create({
+			key: 'eat',
+			frames: this.anims.generateFrameNumbers('marvin', { start: 6, end: 7 }),
+			frameRate: 10,
+			repeat:3 
+		});
+
+		this.anims.create({
+			key: 'weed',
+			frames: this.anims.generateFrameNumbers('marvin', { start: 4, end: 5 }),
+			frameRate: 10,
+			repeat:3 
+		});
+
+		this.anims.create({
 			key: 'left',
-			frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+			frames: this.anims.generateFrameNumbers('marvin', { start: 0, end: 1 }),
 			frameRate: 10,
 			repeat: -1
 		});
 	
 		this.anims.create({
 			key: 'turn',
-			frames: [ { key: 'dude', frame: 4 } ],
-			frameRate: 20
+			frames: this.anims.generateFrameNumbers('marvin', { start: 0, end: 1 }),
+			frameRate: 10,
+			repeat: -1
 		});
 		
 		this.anims.create({
 			key: 'right',
-			frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+			frames: this.anims.generateFrameNumbers('marvin', { start: 2, end: 3 }),
 			frameRate: 10,
 			repeat: -1
 		});
@@ -148,23 +163,24 @@ class Play extends Phaser.Scene {
 		{
 		    this.player.setVelocityY(160);
 
-		    this.player.anims.play('turn');
+		    this.player.anims.play('turn', true);
 		}
 		else if (this.cursors.up.isDown)
 		{
 		    this.player.setVelocityY(-160);
-		    this.player.anims.play('turn');
+		    this.player.anims.play('turn', true);
 	}
 		else 
 		{
 		    this.player.setVelocityX(0);
 		    this.player.setVelocityY(0);
 
-		    this.player.anims.play('turn');
+		    //this.player.anims.play('turn');
 		}
 
 		if (this.cursors.space.isDown) {
 			this.eating = true;
+		    this.player.anims.play('eat',true);
 		}
 		else {
 			this.eating = false;
@@ -173,6 +189,7 @@ class Play extends Phaser.Scene {
 		if (this.weedKey.isDown) {
 	
 			this.weeding = true;
+		    this.player.anims.play('weed',true);
 		}
 		else {
 			this.weeding = false;
