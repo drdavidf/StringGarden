@@ -5,6 +5,7 @@ class Play extends Phaser.Scene {
         super('Play');
 		this.freeFruits = [];
 		this.score = 0;
+		this.moved = false;
     }
 
     init(level) {
@@ -32,14 +33,14 @@ class Play extends Phaser.Scene {
 		this.anims.create({
 			key: 'eat',
 			frames: this.anims.generateFrameNumbers('marvin', { start: 6, end: 7 }),
-			frameRate: 10,
+			frameRate: 5,
 			repeat:3 
 		});
 
 		this.anims.create({
 			key: 'weed',
 			frames: this.anims.generateFrameNumbers('marvin', { start: 4, end: 5 }),
-			frameRate: 10,
+			frameRate: 5,
 			repeat:3 
 		});
 
@@ -51,17 +52,16 @@ class Play extends Phaser.Scene {
 		});
 	
 		this.anims.create({
-			key: 'turn',
-			frames: this.anims.generateFrameNumbers('marvin', { start: 0, end: 1 }),
-			frameRate: 10,
-			repeat: -1
-		});
-		
-		this.anims.create({
 			key: 'right',
 			frames: this.anims.generateFrameNumbers('marvin', { start: 2, end: 3 }),
 			frameRate: 10,
-			repeat: -1
+			repeat: -1 
+		});
+
+		this.anims.create({
+			key: 'stand',
+			frames : [ { key:'marvin' , frame:0 } ],
+			frameRate: 10
 		});
 		
 		this.cursors = this.input.keyboard.createCursorKeys();
@@ -152,35 +152,43 @@ class Play extends Phaser.Scene {
 		    this.player.setVelocityX(-160);
 
 		    this.player.anims.play('left', true);
+
+			this.moved = true;
 		}
 		else if (this.cursors.right.isDown)
 		{
 		    this.player.setVelocityX(160);
 
 		    this.player.anims.play('right', true);
+			this.moved = true;
 		}
 		else if (this.cursors.down.isDown)
 		{
 		    this.player.setVelocityY(160);
 
-		    this.player.anims.play('turn', true);
+		    this.player.anims.play('left', true);
+			this.moved = true;
 		}
 		else if (this.cursors.up.isDown)
 		{
 		    this.player.setVelocityY(-160);
-		    this.player.anims.play('turn', true);
-	}
+		    this.player.anims.play('right', true);
+			this.moved = true;
+		}
 		else 
 		{
 		    this.player.setVelocityX(0);
 		    this.player.setVelocityY(0);
 
-		    //this.player.anims.play('turn');
+			if (this.moved) {
+				this.player.anims.play('stand', true);
+				this.moved = false;
+			}
 		}
 
 		if (this.cursors.space.isDown) {
 			this.eating = true;
-		    this.player.anims.play('eat',true);
+		    	this.player.anims.play('eat',true);
 		}
 		else {
 			this.eating = false;
@@ -189,7 +197,7 @@ class Play extends Phaser.Scene {
 		if (this.weedKey.isDown) {
 	
 			this.weeding = true;
-		    this.player.anims.play('weed',true);
+		    	this.player.anims.play('weed',true);
 		}
 		else {
 			this.weeding = false;
@@ -221,7 +229,7 @@ class Play extends Phaser.Scene {
 				this.mistakeText.setText('');
 			}
 			else {
-				this.score = this.score + 1;
+				this.score = this.score - 1;
 				this.mistakeText.setText('match: ' + this.strings[fruit.index][0]);
 			}
 		}
