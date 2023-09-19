@@ -5,6 +5,7 @@ class Play extends Phaser.Scene {
         super('Play');
 		this.freeFruits = [];
 		this.score = 0;
+		this.moved = false;
     }
 
     init(level) {
@@ -119,35 +120,43 @@ class Play extends Phaser.Scene {
 		    this.player.setVelocityX(-160);
 
 		    this.player.anims.play('left', true);
+
+			this.moved = true;
 		}
 		else if (this.cursors.right.isDown)
 		{
 		    this.player.setVelocityX(160);
 
 		    this.player.anims.play('right', true);
+			this.moved = true;
 		}
 		else if (this.cursors.down.isDown)
 		{
 		    this.player.setVelocityY(160);
 
-		    this.player.anims.play('turn', true);
+		    this.player.anims.play('left', true);
+			this.moved = true;
 		}
 		else if (this.cursors.up.isDown)
 		{
 		    this.player.setVelocityY(-160);
-		    this.player.anims.play('turn', true);
-	}
+		    this.player.anims.play('right', true);
+			this.moved = true;
+		}
 		else 
 		{
 		    this.player.setVelocityX(0);
 		    this.player.setVelocityY(0);
 
-		    //this.player.anims.play('turn');
+			if (this.moved) {
+				this.player.anims.play('stand', true);
+				this.moved = false;
+			}
 		}
 
 		if (this.cursors.space.isDown) {
 			this.eating = true;
-		    this.player.anims.play('eat',true);
+		    	this.player.anims.play('eat',true);
 		}
 		else {
 			this.eating = false;
@@ -156,7 +165,7 @@ class Play extends Phaser.Scene {
 		if (this.weedKey.isDown) {
 	
 			this.weeding = true;
-		    this.player.anims.play('weed',true);
+		    	this.player.anims.play('weed',true);
 		}
 		else {
 			this.weeding = false;
@@ -188,7 +197,7 @@ class Play extends Phaser.Scene {
 				this.mistakeText.setText('');
 			}
 			else {
-				this.score = this.score + 1;
+				this.score = this.score - 1;
 				this.mistakeText.setText('match: ' + this.strings[fruit.index][0]);
 			}
 		}
