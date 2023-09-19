@@ -13,57 +13,22 @@ class Play extends Phaser.Scene {
     }
 
     preload() {
-		this.load.json('levels', 'assets/sglevels.json');
-		this.load.spritesheet('marvin', 'assets/marvin.png', { frameWidth: 64, frameHeight: 64 });
     }
 
     create(data) {
+
+		this.door = this.physics.add.sprite(700, 520, 'door', 1);
 
 		this.weedKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
 	
 		this.eating = false;
 		this.weeding = false;
 	
-		this.player = this.physics.add.sprite(100, 450, 'marvin');
+		this.player = this.physics.add.sprite(600, 520, 'marvin');
 	
 		this.player.setBounce(0.2);
 		this.player.setCollideWorldBounds(true);
-	
-		this.anims.create({
-			key: 'eat',
-			frames: this.anims.generateFrameNumbers('marvin', { start: 6, end: 7 }),
-			frameRate: 10,
-			repeat:3 
-		});
 
-		this.anims.create({
-			key: 'weed',
-			frames: this.anims.generateFrameNumbers('marvin', { start: 4, end: 5 }),
-			frameRate: 10,
-			repeat:3 
-		});
-
-		this.anims.create({
-			key: 'left',
-			frames: this.anims.generateFrameNumbers('marvin', { start: 0, end: 1 }),
-			frameRate: 10,
-			repeat: -1
-		});
-	
-		this.anims.create({
-			key: 'turn',
-			frames: this.anims.generateFrameNumbers('marvin', { start: 0, end: 1 }),
-			frameRate: 10,
-			repeat: -1
-		});
-		
-		this.anims.create({
-			key: 'right',
-			frames: this.anims.generateFrameNumbers('marvin', { start: 2, end: 3 }),
-			frameRate: 10,
-			repeat: -1
-		});
-		
 		this.cursors = this.input.keyboard.createCursorKeys();
 	
 		this.levels = this.cache.json.get('levels');
@@ -99,6 +64,8 @@ class Play extends Phaser.Scene {
 		});
 	
 		this.physics.add.overlap(this.player, this.fruits, this.eatFruit, null, this);
+
+		this.physics.add.overlap(this.player, this.door, this.openDoor, null, this);
 	
 	
 		this.levelText = this.add.text(16, 16, 'level: ' + (this.level+1), { fontSize: '16px', fill: '#FFF' });
@@ -231,6 +198,13 @@ class Play extends Phaser.Scene {
 		fruit.body.enable=false;
 		fruit.body.gameObject.visible = false;
 		this.freeFruits.push(fruit);
+	}
+
+	openDoor(player, door) {
+		
+		    this.door.anims.play('open',true);
+			this.door.on('animationcomplete', () =>  {
+				this.scene.start('Play')});
 	}
 }
 
