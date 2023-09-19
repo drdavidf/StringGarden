@@ -184,9 +184,11 @@ class Play extends Phaser.Scene {
 			if (this.toxic(fruit)) {
 				this.score = this.score - 1;
 				this.mistakeText.setText('mismatch: ' + this.strings[fruit.index][0] + '>' + this.strings[fruit.index][1] + '<');
+				player.on('animationcomplete', () => { player.setFrame(8); } );
 			} else {
 				this.score = this.score + 1;
 				this.mistakeText.setText('');
+				player.on('animationcomplete', () => { player.setFrame(0); } );
 			}
 		}
 
@@ -195,10 +197,12 @@ class Play extends Phaser.Scene {
 			if (this.toxic(fruit)) {
 				this.score = this.score + 1;
 				this.mistakeText.setText('');
+				player.on('animationcomplete', () => { player.setFrame(0); } );
 			}
 			else {
 				this.score = this.score - 1;
 				this.mistakeText.setText('match: ' + this.strings[fruit.index][0]);
+				player.on('animationcomplete', () => { player.setFrame(8); } );
 			}
 		}
 

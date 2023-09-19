@@ -113,6 +113,13 @@ class Load extends Phaser.Scene {
 			frameRate: 10,
 			repeat: -1
 		});
+
+		this.anims.create({
+			key: 'stand',
+			frames: this.anims.generateFrameNumbers('marvin', { start: 0, end: 0 }),
+			frameRate: 10,
+			repeat: -1
+		});
 		
 		this.scene.start('Welcome');
 	}
