@@ -10,5 +10,10 @@
   		"rounds" : [
 			{ "regex": "(a|b)+a*a" , "strings": [ [ "aa" , "" ] , [ "baa", "b"] , ["", "b"] ] }, 
 			{ "regex": "(bb|aa)*", "strings": [ [ "aa", "" ] , [ "bb", "ba" ] , [ "b", "a"] ] } ]
+	},
+	{
+		"level" : "3",
+  		"rounds" : [
+			{ "regex": "(+|-)?(0-9){1,3}" , "strings": [ [ "aa" , "" ] , [ "baa", "b"] , ["", "b"] ] } ] 
 	}
 ]

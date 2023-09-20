@@ -8,9 +8,12 @@ class Play extends Phaser.Scene {
 		this.moved = false;
     }
 
-    init(level) {
-        this.level = 0;
+    init(data) {
+        this.level = data.level;
         this.round = 0;
+		this.movingToNextLevel = false;
+		this.movingToPrevLevel = false;
+		this.player_x = data.player_x;
     }
 
     preload() {
@@ -18,14 +21,17 @@ class Play extends Phaser.Scene {
 
     create(data) {
 
-		this.door = this.physics.add.sprite(700, 520, 'door', 1);
+		this.doorNext = this.physics.add.sprite(732, 520, 'door', 1);
+
+		this.doorPrev = this.physics.add.sprite(32, 520, 'door', 2);
+
 
 		this.weedKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
 	
 		this.eating = false;
 		this.weeding = false;
 	
-		this.player = this.physics.add.sprite(600, 520, 'marvin');
+		this.player = this.physics.add.sprite(this.player_x, 520, 'marvin');
 	
 		this.player.setBounce(0.2);
 		this.player.setCollideWorldBounds(true);
@@ -66,7 +72,8 @@ class Play extends Phaser.Scene {
 	
 		this.physics.add.overlap(this.player, this.fruits, this.eatFruit, null, this);
 
-		this.physics.add.overlap(this.player, this.door, this.openDoor, null, this);
+		this.physics.add.overlap(this.player, this.doorNext, this.openDoorNext, null, this);
+		this.physics.add.overlap(this.player, this.doorPrev, this.openDoorPrev, null, this);
 	
 	
 		this.levelText = this.add.text(16, 16, 'level: ' + (this.level+1), { fontSize: '16px', fill: '#FFF' });
@@ -80,6 +87,9 @@ class Play extends Phaser.Scene {
 		this.mistakeText = this.add.text(360,64, '', { fontSize:'32px', fill:'#FFF' });
 	
 		this.time.addEvent({delay:3000, callback: this.onTimeout, callbackScope: this,loop: true});
+
+		this.doorPrev.visible = this.level > 0; 
+		this.doorNext.visible = this.level < this.levels.length - 1; 
 	}
 
 	onTimeout() {
@@ -170,7 +180,17 @@ class Play extends Phaser.Scene {
 		else {
 			this.weeding = false;
 		}
-		
+
+		if (this.movingToNextLevel == true) {
+			//this.player.x = 96;
+			this.movingToNextLevel = false;
+			this.scene.start('Play', {level:this.level+1, player_x:96});
+		}
+		if (this.movingToPrevLevel == true) {
+			//this.player.x = 732-64;
+			this.movingToPrevLevel = false;
+			this.scene.start('Play', {level:this.level-1, player_x:732-64});
+		}
 	}
 
 	eatFruit(player, fruit) {
@@ -213,11 +233,22 @@ class Play extends Phaser.Scene {
 		this.freeFruits.push(fruit);
 	}
 
-	openDoor(player, door) {
+	openDoorNext(player, door) {
 		
-		    this.door.anims.play('open',true);
-			this.door.on('animationcomplete', () =>  {
-				this.scene.start('Play')});
+		if (door.visible == false) return;
+
+	    door.anims.play('open',true);
+		
+		door.on('animationcomplete', () => { this.movingToNextLevel = true; });
+	}
+
+	openDoorPrev(player, door) {
+
+		if (door.visible == false) return;
+		
+		door.anims.play('open',true);
+
+		door.on('animationcomplete', () => { this.movingToPrevLevel = true; });
 	}
 }
 

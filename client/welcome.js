@@ -29,7 +29,7 @@ class Welcome extends Phaser.Scene {
     update(time, delta) {
 
 		if (this.cursors.space.isDown) {
-			this.scene.start('Levels');
+			this.scene.start('Play', {level:0,player_x:96});
 		}
         // Used to update your game. This function runs constantly
     }
