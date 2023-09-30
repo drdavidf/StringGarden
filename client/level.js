@@ -9,7 +9,11 @@ class GameLevel {
 
 	consumed ;
 
+	open ; 
+
 	constructor(rounds) {
+
+		this.open = false;
 
 		this.rounds = rounds;
 

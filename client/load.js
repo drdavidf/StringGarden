@@ -81,6 +81,13 @@ class Load extends Phaser.Scene {
 			frames: this.anims.generateFrameNumbers('door', { start:2, end:4 }), frameRate: 2 });
 
 		this.anims.create({
+			key: 'unlock',
+			frames: this.anims.generateFrameNumbers('door', { start: 1, end: 2 }),
+			frameRate: 10,
+			repeat: -1
+		});
+
+		this.anims.create({
 			key: 'eat',
 			frames: this.anims.generateFrameNumbers('marvin', { start: 6, end: 7 }),
 			frameRate: 10,

@@ -21,6 +21,10 @@ class Play extends Phaser.Scene {
 
 		this.doorNext = this.physics.add.sprite(732, 520, 'door', 1);
 
+		if (model.nextLevelOpen()) {
+			this.doorNext.setFrame(2);
+		}
+
 		this.doorPrev = this.physics.add.sprite(32, 520, 'door', 2);
 
 		this.weedKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
@@ -70,9 +74,9 @@ class Play extends Phaser.Scene {
 	
 		this.scoreText = this.add.text(232, 16, 'score: ' + model.score(), { fontSize: '16px', fill: '#FFF' });
 	
-		this.regexText = this.add.text(128,64, 'regex: ' + model.regex(), { fontSize:'32px', fill:'#FFF' });
+		this.regexText = this.add.text(16,64, 'regex: ' + model.regex(), { fontSize:'32px', fill:'#FFF' });
 	
-		this.mistakeText = this.add.text(360,64, '', { fontSize:'32px', fill:'#FFF' });
+		this.mistakeText = this.add.text(16,96, '', { fontSize:'32px', fill:'#FFF' });
 	
 		this.doorPrev.visible = ! model.first();
 		this.doorNext.visible = ! model.last(); 
@@ -193,8 +197,9 @@ class Play extends Phaser.Scene {
 
 		model.consume();
 
-		console.log('done = ' + model.done());
-		console.log('lastRound = ' + model.lastRound());
+		if (model.nextLevelOpen()) {
+			this.doorNext.setFrame(2);
+		}
 
 		if (model.done() && ! model.lastRound()) {
 			model.nextRound();
@@ -204,6 +209,8 @@ class Play extends Phaser.Scene {
 
 	openDoorNext(player, door) {
 		
+		if (model.nextLevelOpen() == false) return;
+
 		if (door.visible == false) return;
 
 	    door.anims.play('open',true);

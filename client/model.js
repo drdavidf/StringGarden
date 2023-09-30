@@ -19,6 +19,8 @@ class GameModel {
 		this.levels = levels.map(function(level) {
 			return new GameLevel(level.rounds);
 		});	
+
+		this.levels[0].open = true;
 	}
 
 	nextLevel() {
@@ -45,14 +47,12 @@ class GameModel {
 
 	}
 
-	prevRound() {
-
-		this.round = this.round - 1;
-	}
-
 	incScore() {
 
 		this.current().incScore();
+
+		if (!this.last() && this.current().score >= 4) 
+			this.levels[this.currentIndex+1].open = true;
 	}
 
 	decScore() {
@@ -105,6 +105,11 @@ class GameModel {
 	lastRound() {
 
 		return this.current().last(this.round);
+	}
+
+	nextLevelOpen() {
+
+		return !this.last() && this.levels[this.currentIndex+1].open;
 	}
 }
 
