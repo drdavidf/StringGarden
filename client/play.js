@@ -3,17 +3,15 @@ class Play extends Phaser.Scene {
 
     constructor () {
         super('Play');
-		this.freeFruits = [];
-		this.score = 0;
 		this.moved = false;
     }
 
     init(data) {
-        this.level = data.level;
-        this.round = 0;
+		this.player_x = data.player_x;
 		this.movingToNextLevel = false;
 		this.movingToPrevLevel = false;
-		this.player_x = data.player_x;
+		this.eating = false;
+		this.weeding = false;
     }
 
     preload() {
@@ -25,11 +23,7 @@ class Play extends Phaser.Scene {
 
 		this.doorPrev = this.physics.add.sprite(32, 520, 'door', 2);
 
-
 		this.weedKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
-	
-		this.eating = false;
-		this.weeding = false;
 	
 		this.player = this.physics.add.sprite(this.player_x, 520, 'marvin');
 	
@@ -38,13 +32,7 @@ class Play extends Phaser.Scene {
 
 		this.cursors = this.input.keyboard.createCursorKeys();
 	
-		this.levels = this.cache.json.get('levels');
-	
-		this.regex = this.levels[this.level].rounds[this.round].regex;
-	
-		this.strings = this.levels[this.level].rounds[this.round].strings;
-	
-		var n = this.strings.length;
+		var n = model.strings().length;
 	
 		var step = (800-16*2) / n;
 	
@@ -52,7 +40,7 @@ class Play extends Phaser.Scene {
 	
 		var i = 0;
 	
-		this.fruits = this.strings.map(function (child) {
+		this.fruits = model.strings().map(function (child) {
 	
 			var fruit = scene.add.text(16+i*step, 92 + Phaser.Math.Between(0,600-92-32), child[0]+child[1], { fontSize:'16px', fill: '#FFF' });
 	
@@ -76,51 +64,23 @@ class Play extends Phaser.Scene {
 		this.physics.add.overlap(this.player, this.doorPrev, this.openDoorPrev, null, this);
 	
 	
-		this.levelText = this.add.text(16, 16, 'level: ' + (this.level+1), { fontSize: '16px', fill: '#FFF' });
+		this.levelText = this.add.text(16, 16, 'level: ' + (model.currentIndex+1), { fontSize: '16px', fill: '#FFF' });
 	
-		this.roundText = this.add.text(128, 16, 'round: ' + (this.round+1), { fontSize: '16px', fill: '#FFF' });
+		this.roundText = this.add.text(128, 16, 'round: ' + (model.round+1), { fontSize: '16px', fill: '#FFF' });
 	
-		this.scoreText = this.add.text(232, 16, 'score: 0', { fontSize: '16px', fill: '#FFF' });
+		this.scoreText = this.add.text(232, 16, 'score: ' + model.score(), { fontSize: '16px', fill: '#FFF' });
 	
-		this.regexText = this.add.text(128,64, 'regex: ' + this.regex, { fontSize:'32px', fill:'#FFF' });
+		this.regexText = this.add.text(128,64, 'regex: ' + model.regex(), { fontSize:'32px', fill:'#FFF' });
 	
 		this.mistakeText = this.add.text(360,64, '', { fontSize:'32px', fill:'#FFF' });
 	
-		this.time.addEvent({delay:3000, callback: this.onTimeout, callbackScope: this,loop: true});
-
-		this.doorPrev.visible = this.level > 0; 
-		this.doorNext.visible = this.level < this.levels.length - 1; 
-	}
-
-	onTimeout() {
-
-		if (this.freeFruits.length == 0) return;
-
-		var fruit = this.freeFruits.pop();
-
-		var x = fruit.x;
-
-		fruit.y = 92 + Phaser.Math.Between(0,600-92-32);
-		fruit.x = x;
-
-		var i = Phaser.Math.Between(0, this.strings.length-1);
-
-		this.physics.world.remove(fruit.body);
-
-		fruit.body = null;
-
-		fruit.setText(this.strings[i][0] + this.strings[i][1]);
-
-		this.physics.world.enable(fruit);
-
-		fruit.index = i;
-		fruit.body.enable=true;
-		fruit.body.gameObject.visible = true;
+		this.doorPrev.visible = ! model.first();
+		this.doorNext.visible = ! model.last(); 
 	}
 
 	toxic(fruit) {
 	
-		return this.strings[fruit.index][1].length > 0;
+		return model.strings()[fruit.index][1].length > 0;
 	}
 
 	update () {
@@ -182,14 +142,14 @@ class Play extends Phaser.Scene {
 		}
 
 		if (this.movingToNextLevel == true) {
-			//this.player.x = 96;
+			model.nextLevel();
 			this.movingToNextLevel = false;
-			this.scene.start('Play', {level:this.level+1, player_x:96});
+			this.scene.start('Play', {player_x:96});
 		}
 		if (this.movingToPrevLevel == true) {
-			//this.player.x = 732-64;
+			model.prevLevel();
 			this.movingToPrevLevel = false;
-			this.scene.start('Play', {level:this.level-1, player_x:732-64});
+			this.scene.start('Play', {player_x:732-64});
 		}
 	}
 
@@ -202,11 +162,11 @@ class Play extends Phaser.Scene {
 		if (this.eating) {
 
 			if (this.toxic(fruit)) {
-				this.score = this.score - 1;
-				this.mistakeText.setText('mismatch: ' + this.strings[fruit.index][0] + '>' + this.strings[fruit.index][1] + '<');
+				model.decScore(); 
+				this.mistakeText.setText('mismatch: ' + model.strings()[fruit.index][0] + '>' + model.strings()[fruit.index][1] + '<');
 				player.on('animationcomplete', () => { player.setFrame(8); } );
 			} else {
-				this.score = this.score + 1;
+				model.incScore();
 				this.mistakeText.setText('');
 				player.on('animationcomplete', () => { player.setFrame(0); } );
 			}
@@ -215,22 +175,31 @@ class Play extends Phaser.Scene {
 		if (this.weeding) {
 
 			if (this.toxic(fruit)) {
-				this.score = this.score + 1;
+				model.incScore();
 				this.mistakeText.setText('');
 				player.on('animationcomplete', () => { player.setFrame(0); } );
 			}
 			else {
-				this.score = this.score - 1;
-				this.mistakeText.setText('match: ' + this.strings[fruit.index][0]);
+				model.decScore();
+				this.mistakeText.setText('match: ' + model.strings()[fruit.index][0]);
 				player.on('animationcomplete', () => { player.setFrame(8); } );
 			}
 		}
 
-		this.scoreText.setText('score: ' + this.score); 
+		this.scoreText.setText('score: ' + model.score()); 
 
 		fruit.body.enable=false;
 		fruit.body.gameObject.visible = false;
-		this.freeFruits.push(fruit);
+
+		model.consume();
+
+		console.log('done = ' + model.done());
+		console.log('lastRound = ' + model.lastRound());
+
+		if (model.done() && ! model.lastRound()) {
+			model.nextRound();
+			this.scene.start('Play', {player_x:96});
+		}
 	}
 
 	openDoorNext(player, door) {

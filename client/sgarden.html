@@ -12,9 +12,10 @@
 </head>
 <body>
 
+<script src="model.js"></script>
+<script src="level.js"></script>
 <script src="load.js"></script>
 <script src="welcome.js"></script>
-<script src="levels.js"></script>
 <script src="play.js"></script>>
 <script type="text/javascript">
 
@@ -29,8 +30,10 @@
                 debug: false
             }
         },
-        scene: [ Load, Welcome, Levels, Play ] 
+        scene: [ Load, Welcome, Play ] 
     };
+
+	var model = new GameModel();
 
 	game = new Phaser.Game(config);
 

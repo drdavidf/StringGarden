@@ -69,6 +69,7 @@ class Load extends Phaser.Scene {
             });
             
 		this.load.json('levels', 'assets/sglevels.json');
+
 		this.load.spritesheet('door', 'assets/door.png', { frameWidth: 64, frameHeight: 64 });
 		this.load.spritesheet('marvin', 'assets/marvin.png', { frameWidth: 64, frameHeight: 64 });
     }
@@ -121,6 +122,8 @@ class Load extends Phaser.Scene {
 			repeat: -1
 		});
 		
+		model.init(this.cache.json.get('levels'));
+
 		this.scene.start('Welcome');
 	}
 }
